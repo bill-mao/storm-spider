@@ -1,8 +1,12 @@
 package bolt;
 
+import backtype.storm.task.OutputCollector;
+import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.BasicOutputCollector;
+import backtype.storm.topology.IRichBolt;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseBasicBolt;
+import backtype.storm.topology.base.BaseRichBolt;
 import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
@@ -16,10 +20,14 @@ import util.TemplateUrls;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by coral on 2017/7/11.
  */
+
+//class tmp extends BaseRichBolt {
+//}
 public class FetchTemplateHtmlUrlsBolt extends BaseBasicBolt{
 
     @Override
@@ -37,6 +45,7 @@ public class FetchTemplateHtmlUrlsBolt extends BaseBasicBolt{
             String urlsJson = JSON.toJSONString(urls.toArray( new String[urls.size()]));
             //tempalteJson don't forget , it's better?? or just Template Object?
             basicOutputCollector.emit(new Values(templateJson, urlsJson));//debug --> automatically print the the emit
+//            basicOutputCollector.ack;
         } catch (IOException e) {
             System.out.println("fetch template website urls failure");
             e.printStackTrace();

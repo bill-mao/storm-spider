@@ -24,8 +24,8 @@ public class CrawlerTopology {
         // TODO: 2017/7/14  
         conf.setDebug(true);
 
-        if(args == null && args.length >0){
-
+        if(args != null && args.length >0){
+//        if(args == null && args.length >0){
             conf.setNumWorkers(20);
             conf.setMaxSpoutPending(5000);//?
             conf.setMessageTimeoutSecs(120);
