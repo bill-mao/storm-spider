@@ -19,6 +19,7 @@ import java.sql.Timestamp;
  * Created by coral on 2017/7/11.
  */
 public class FetchWebsiteBolt extends BaseBasicBolt {
+    static int ccount = 0;
     // TODO: 2017/7/13  bloomFilter ?? 怎么解决分布式问题？？  static ??
     // TODO: 2017/7/11   static works??  when to initialize
     private static BloomFilter bloomFilter = new BloomFilter();
@@ -26,38 +27,36 @@ public class FetchWebsiteBolt extends BaseBasicBolt {
 
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {
-        //be clear what tuple [0 ,1 ] is !!
         String templateJson = tuple.getString(0);
         String urlsJson = tuple.getString(1);
 
-        Template template =JSON.parseObject(templateJson, Template.class);
+        Template template = JSON.parseObject(templateJson, Template.class);
         String[] urls = JSON.parseObject(urlsJson, String[].class);
 
         //get every url's website, and insert into DB
         for (int j = 0; j < urls.length; j++) {
-            String currentUrl =urls[j];
+            String currentUrl = urls[j];
 
             //ignore repeated url
-            if(bloomFilter.contains(currentUrl)){
-                System.out.println("duplicated url ：" + currentUrl);
+            if (bloomFilter.contains(currentUrl)) {
+                System.out.println("=============================duplicated url ：" + currentUrl);
                 continue;
-            }
-            else    bloomFilter.addValue(currentUrl);
+            } else bloomFilter.addValue(currentUrl);
 
             // TODO: 2017/7/9  get web html
-            try{
+            try {
                 Document doc = Jsoup.connect(currentUrl).get();
-                if (doc == null ) {
-                    System.out.println("wrong url, fail to load html content");
+                if (doc == null) {
+                    System.out.println("============================wrong url or bad network");
                     continue;
                 }
                 Website web = getWebsite(doc, template);
                 webMap.insertWebsite(web);
                 System.out.println("successfully insert DB a website");
-//                basicOutputCollector.emit(new Values()); //last no emit
-            }catch(Exception e){
-                System.out.println("sql exception?");
-                System.out.println("something wrong with network?? ");
+                ccount++;
+                System.out.println("一共插入DB website 数量： " + ccount);
+            } catch (Exception e) {
+                System.out.println("============================sql exception or bad network ? ");
                 e.printStackTrace();
             }
         }
@@ -91,6 +90,7 @@ public class FetchWebsiteBolt extends BaseBasicBolt {
         }
         return web;
     }
+
     //catch exception to keep program continue to run
     private String xsoupHandleNull(Document doc, String xpath) {
         String out;
@@ -99,8 +99,7 @@ public class FetchWebsiteBolt extends BaseBasicBolt {
 //            WriteTxt.write(doc.html() + "\n" + "xpath==" + xpath + "\n\n", "default" + "\n\n");
             out = Xsoup.compile(xpath).evaluate(doc).get();
         } catch (Exception e) {
-            System.out.println("xsoupHandleNull -- null 值，website不全？");
-//            e.printStackTrace();
+            System.out.println("=============================xsoupHandleNull -- can't find xpath content，website不全？");
             return null;
         }
         return out;

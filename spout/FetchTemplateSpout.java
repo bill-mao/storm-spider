@@ -2,12 +2,9 @@ package spout;
 
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
-import backtype.storm.topology.BasicOutputCollector;
 import backtype.storm.topology.OutputFieldsDeclarer;
-import backtype.storm.topology.base.BaseBasicBolt;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
-import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import com.alibaba.fastjson.JSON;
 import mybatis.Template;
@@ -27,15 +24,11 @@ import java.util.Map;
 
 public class FetchTemplateSpout extends BaseRichSpout {
     SpoutOutputCollector _collector;
-    TemplateMapper tm;
-    int index;
-    List<Template> templates = null;
+    static TemplateMapper tm;
+    static int index; //在不同的物理节点有效？
+    static List<Template> templates = null;
 
-    //initialization?
-    @Override
-    public void open(Map map, TopologyContext topologyContext, SpoutOutputCollector spoutOutputCollector) {
-        System.out.println("=========================a spout created =============================");
-        _collector = spoutOutputCollector;
+    static {
         tm = new TemplateMapper();
         index = 0;
         try {
@@ -44,6 +37,14 @@ public class FetchTemplateSpout extends BaseRichSpout {
             System.out.println("fetch template spout can't get template from DB");
             e.printStackTrace();
         }
+    }
+
+    //initialization?
+    @Override
+    public void open(Map map, TopologyContext topologyContext, SpoutOutputCollector spoutOutputCollector) {
+        System.out.println("=========================a spout created =============================");
+        _collector = spoutOutputCollector;
+
     }
 
     @Override
@@ -86,7 +87,7 @@ public class FetchTemplateSpout extends BaseRichSpout {
     public void fail(Object msgId) {
         //这个不重新发送？
         super.fail(msgId);
-        System.out.println(" ------------------------------ spout fail");
+        System.out.println("==================================spout fail");
     }
 
     @Override

@@ -8,6 +8,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import us.codecraft.xsoup.Xsoup;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -16,7 +17,9 @@ import java.util.List;
  */
 public class Parse {
 
-    // TODO: 2017/7/13  catch exception network problems 
+    // TODO: 2017/7/13  catch exception network problems
+    //测试storm 是否多处理url
+    static int count = 0;
 
     public static void main(String args[]) throws Exception {
 
@@ -43,7 +46,16 @@ public class Parse {
 
             Template template = templates.get(i);
             // TODO: 2017/7/9   get url html
-            Document urlHtml = Jsoup.connect(template.getChannel_url()).get();
+            Document urlHtml = null;
+            try {
+                urlHtml = Jsoup.connect(template.getChannel_url()).get();
+            } catch (IOException e) {
+                System.out.println("没有了？？ ");
+                //Exception in thread "main" java.lang.IllegalArgumentException: Malformed URL: javascript:alert('没有了');
+
+                e.printStackTrace();
+                continue;
+            }
             String html = urlHtml.html();
 
             //nextpage
@@ -74,8 +86,11 @@ public class Parse {
 //                mybatis.Website web = parse.getWebsite2(webHtml, template);
                 Website web = parse.getWebsite(webHtml.html(), template);
                 webMap.insertWebsite(web);
+                count++;
             }
         }
+
+        System.out.println("一共插入DB website 数量： " + count);
     }
 
     // TODO: 2017/7/10  ??Create_time

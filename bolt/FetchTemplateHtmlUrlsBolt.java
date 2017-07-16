@@ -19,8 +19,7 @@ import java.util.List;
  * Created by coral on 2017/7/11.
  */
 
-//class tmp extends BaseRichBolt {
-//}
+// have automatically implements ack and fail ; BaseRichBolt need to implements yourself
 public class FetchTemplateHtmlUrlsBolt extends BaseBasicBolt{
 
     @Override
@@ -33,14 +32,11 @@ public class FetchTemplateHtmlUrlsBolt extends BaseBasicBolt{
             // TODO: 2017/7/11  wangchengjie
             Document doc = Jsoup.connect(template.getChannel_url()).get();
             List<String> urls = Xsoup.compile(template.getUrl_xpath()).evaluate(doc).list();
-            System.out.println("the number of this template's urls is :" + urls.size());
-//            TemplateUrls templateUrls = new TemplateUrls(template, urls.toArray(new String[urls.size()]));
+            System.out.println("====================================the number of this template's urls is :" + urls.size());
             String urlsJson = JSON.toJSONString(urls.toArray( new String[urls.size()]));
-            //tempalteJson don't forget , it's better?? or just Template Object?
             basicOutputCollector.emit(new Values(templateJson, urlsJson));//debug --> automatically print the the emit
-//            basicOutputCollector.ack;
         } catch (IOException e) {
-            System.out.println("fetch template website urls failure");
+            System.out.println("============================fetch template website urls failure");
             e.printStackTrace();
         }
     }
