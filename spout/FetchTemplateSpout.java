@@ -25,7 +25,7 @@ import java.util.Map;
 //public class FetchTemplateSpout extends BaseRichSpout{
 
 
-public class FetchTemplateSpout extends BaseRichSpout{
+public class FetchTemplateSpout extends BaseRichSpout {
     SpoutOutputCollector _collector;
     TemplateMapper tm;
     int index;
@@ -34,6 +34,7 @@ public class FetchTemplateSpout extends BaseRichSpout{
     //initialization?
     @Override
     public void open(Map map, TopologyContext topologyContext, SpoutOutputCollector spoutOutputCollector) {
+        System.out.println("=========================a spout created =============================");
         _collector = spoutOutputCollector;
         tm = new TemplateMapper();
         index = 0;
@@ -49,24 +50,27 @@ public class FetchTemplateSpout extends BaseRichSpout{
     public void nextTuple() {
         Template template;
         try {
-            if(index == templates.size()){
+            if (index == templates.size()) {
                 index = 0;
                 //6 hours refresh template
-                Thread.sleep(3600 * 6 *1000);
+                Thread.sleep(3600 * 6 * 1000);
                 templates = tm.findAllTemplate();
             }
+            // TODO: 2017/7/16  检查executor 多个，index 是不是只有一个 
+            System.out.println("=========================index is=========================" + index);
             template = templates.get(index++);
             // TODO: 2017/7/9   get url html; wangchengjie
             Document urlHtml = Jsoup.connect(template.getChannel_url()).get();
             String html = urlHtml.html();
             //nextpage
             Template tmp = nextPageTemplate(html, template);
-            if(tmp != null)
+            if (tmp != null)
                 templates.add(tmp);
 
             // TODO: 2017/7/13  must write in the end of function? like return?
             String templateJson = JSON.toJSONString(template);
             _collector.emit(new Values(templateJson));
+            Thread.sleep(1000); //减慢发射速度
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -75,10 +79,12 @@ public class FetchTemplateSpout extends BaseRichSpout{
     @Override
     public void ack(Object msgId) {
         super.ack(msgId);
+        //一些去重的由用户自己来； trident API 能够更加方便书写计算相关的···容错之类
     }
 
     @Override
     public void fail(Object msgId) {
+        //这个不重新发送？
         super.fail(msgId);
         System.out.println(" ------------------------------ spout fail");
     }
@@ -89,11 +95,11 @@ public class FetchTemplateSpout extends BaseRichSpout{
 //        outputFieldsDeclarer.declareStream();
     }
 
-    private Template nextPageTemplate(String html, Template template){
+    private Template nextPageTemplate(String html, Template template) {
         Template tpl = cloneTemplate(template);
         List<String> l = getXpathContent(html, tpl.getChannel_url_nextpage());
         //0 or null(exception wrong xpath)
-        if(l == null  || l.size() == 0 ){
+        if (l == null || l.size() == 0) {
             System.out.println("has no next page");
             return null;
         }
@@ -114,7 +120,7 @@ public class FetchTemplateSpout extends BaseRichSpout{
         return content;
     }
 
-    private Template cloneTemplate(Template template){
+    private Template cloneTemplate(Template template) {
         //with id;
         Template tpl = new Template();
         tpl.setId(template.getId());

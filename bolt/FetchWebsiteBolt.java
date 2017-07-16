@@ -4,7 +4,6 @@ import backtype.storm.topology.BasicOutputCollector;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseBasicBolt;
 import backtype.storm.tuple.Tuple;
-import backtype.storm.tuple.Values;
 import com.alibaba.fastjson.JSON;
 import mybatis.Template;
 import mybatis.Website;
@@ -13,9 +12,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import tmp.BloomFilter;
 import us.codecraft.xsoup.Xsoup;
-import util.TemplateUrls;
 
-import javax.print.Doc;
 import java.sql.Timestamp;
 
 /**
@@ -42,7 +39,7 @@ public class FetchWebsiteBolt extends BaseBasicBolt {
 
             //ignore repeated url
             if(bloomFilter.contains(currentUrl)){
-                System.out.println("duplicated url ");
+                System.out.println("duplicated url ：" + currentUrl);
                 continue;
             }
             else    bloomFilter.addValue(currentUrl);
