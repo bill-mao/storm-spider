@@ -21,7 +21,8 @@ public class CrawlerTopology {
                 .localOrShuffleGrouping("FetchTemplate")
                 .setNumTasks(6);
         builder.setBolt("FetchWebsite", new FetchWebsiteBolt(), 11)
-                .localOrShuffleGrouping("FetchTemplateHtmlUrls");
+                .localOrShuffleGrouping("FetchTemplateHtmlUrls")
+                .setNumTasks(11);
 
         Config conf = new Config();
         // TODO: 2017/7/14

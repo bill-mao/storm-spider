@@ -25,7 +25,9 @@ import java.util.Map;
 public class FetchTemplateSpout extends BaseRichSpout {
     SpoutOutputCollector _collector;
     static TemplateMapper tm;
-    static int index; //在不同的物理节点有效？
+    static int index;
+    //在不同的物理节点有效？ 多线程到底发生了什么事情，为什么BloomFilter能够正常工作？ 是因为BloomFilter里面BitMap是static的吗？
+
     static List<Template> templates = null;
 
     static {
@@ -79,14 +81,14 @@ public class FetchTemplateSpout extends BaseRichSpout {
 
     @Override
     public void ack(Object msgId) {
-        super.ack(msgId);
+//        super.ack(msgId);
         //一些去重的由用户自己来； trident API 能够更加方便书写计算相关的···容错之类
     }
 
     @Override
     public void fail(Object msgId) {
         //这个不重新发送？
-        super.fail(msgId);
+//        super.fail(msgId);
         System.out.println("==================================spout fail");
     }
 
