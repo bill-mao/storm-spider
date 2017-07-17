@@ -1,5 +1,6 @@
 package bolt;
 
+import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.BasicOutputCollector;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseBasicBolt;
@@ -14,6 +15,7 @@ import tmp.BloomFilter;
 import us.codecraft.xsoup.Xsoup;
 
 import java.sql.Timestamp;
+import java.util.Map;
 
 /**
  * Created by coral on 2017/7/11.
@@ -21,9 +23,14 @@ import java.sql.Timestamp;
 public class FetchWebsiteBolt extends BaseBasicBolt {
     static int ccount = 0;
     // TODO: 2017/7/13  bloomFilter ?? 怎么解决分布式问题？？  static ??
-    // TODO: 2017/7/11   static works??  when to initialize
+    // TODO: 2017/7/11   static works??  when to initialize 有并发，但是多插入是没有问题
     private static BloomFilter bloomFilter = new BloomFilter();
     private WebsiteMapper webMap = new WebsiteMapper();
+
+    @Override
+    public void prepare(Map stormConf, TopologyContext context) {
+        super.prepare(stormConf, context);
+    }
 
     @Override
     public void execute(Tuple tuple, BasicOutputCollector basicOutputCollector) {

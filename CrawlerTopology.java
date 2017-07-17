@@ -14,8 +14,8 @@ public class CrawlerTopology {
     public static void main(String args[]) throws Exception {
         TopologyBuilder builder = new TopologyBuilder();
         //parallelism = thread -- spout object的数量 ; executor 默认！！ = task。 假如不一样你得自己再设置一下。
-        builder.setSpout("FetchTemplate", new FetchTemplateSpout(), 3)
-                .setNumTasks(1); //逻辑值必须为1
+        builder.setSpout("FetchTemplate", new FetchTemplateSpout(), 3)  //thread 3 --> index 3 times >
+                .setNumTasks(6); //逻辑值必须为1
         //.setNumTasks(2);//one thread 2 task 逻辑数量--{启动了两个spout}，影响输出结果:  (component : bolt spout)
         builder.setBolt("FetchTemplateHtmlUrls", new FetchTemplateHtmlUrlsBolt(), 3)
                 .localOrShuffleGrouping("FetchTemplate")
@@ -29,6 +29,8 @@ public class CrawlerTopology {
         conf.setDebug(true);
 
         if (args != null && args.length > 0) {
+
+
             //storm rebalance mytopology -n 5 -e blue-spout=3 -e yellow-bolt=10
             conf.setMaxTaskParallelism(11);
             // 本地模式为1  ，集群模式必须设置 //工作进程的数量表示集群中不同节点的拓扑可以创建多少个工作进程。 == slot
