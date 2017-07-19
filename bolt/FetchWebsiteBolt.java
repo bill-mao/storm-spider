@@ -58,6 +58,7 @@ public class FetchWebsiteBolt extends BaseBasicBolt {
                     continue;
                 }
                 Website web = getWebsite(doc, template);
+
                 webMap.insertWebsite(web);
                 System.out.println("successfully insert DB a website");
                 ccount++;

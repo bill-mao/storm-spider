@@ -88,6 +88,12 @@ public class FetchTemplateSpout extends BaseRichSpout {
         System.out.println("=========================index is=========================" + index);
         template = templates.get(index);
 
+        // TODO: 2017/7/18  decide whether is dynamic or static nextpage
+        String next = template.getChannel_url_nextpage();
+        if(next.startsWith("selenium") || next.equals("") || next == null){
+            return JSON.toJSONString(template);
+        }
+
 
         // TODO: 2017/7/9   get url html; wangchengjie
         Document urlHtml = Jsoup.connect(template.getChannel_url()).get();

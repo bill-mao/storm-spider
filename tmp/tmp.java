@@ -6,13 +6,22 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import us.codecraft.xsoup.Xsoup;
 
+import java.sql.Timestamp;
+import java.util.Date;
+
 /**
  * Created by coral on 2017/7/9.
  */
 public class tmp {
 
     public static void main(String args[]) throws Exception {
-        System.out.println(System.currentTimeMillis());
+        Timestamp ts1 = new Timestamp(System.currentTimeMillis());
+        Date date = new Date();
+        Timestamp ts = new Timestamp(date.getTime());
+        System.out.println(ts1);
+        System.out.println(date.toString());
+        System.out.println(ts.toLocalDateTime());
+//        System.out.println(ts1);
 //        BloomFilter bf = new BloomFilter();
 
 

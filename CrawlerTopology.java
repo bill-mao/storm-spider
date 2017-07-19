@@ -14,15 +14,15 @@ public class CrawlerTopology {
     public static void main(String args[]) throws Exception {
         TopologyBuilder builder = new TopologyBuilder();
         //parallelism = thread -- spout object的数量 ; executor 默认！！ = task。 假如不一样你得自己再设置一下。
-        builder.setSpout("FetchTemplate", new FetchTemplateSpout(), 3)  //thread 3 --> index 3 times >
-                .setNumTasks(6); //逻辑值必须为1
+        builder.setSpout("FetchTemplate", new FetchTemplateSpout(), 1)  //thread 3 --> index 3 times >
+                .setNumTasks(1); //逻辑值必须为1
         //.setNumTasks(2);//one thread 2 task 逻辑数量--{启动了两个spout}，影响输出结果:  (component : bolt spout)
-        builder.setBolt("FetchTemplateHtmlUrls", new FetchTemplateHtmlUrlsBolt(), 3)
+        builder.setBolt("FetchTemplateHtmlUrls", new FetchTemplateHtmlUrlsBolt(), 1)
                 .localOrShuffleGrouping("FetchTemplate")
-                .setNumTasks(6);
-        builder.setBolt("FetchWebsite", new FetchWebsiteBolt(), 11)
+                .setNumTasks(1);
+        builder.setBolt("FetchWebsite", new FetchWebsiteBolt(), 33)
                 .localOrShuffleGrouping("FetchTemplateHtmlUrls")
-                .setNumTasks(11);
+                .setNumTasks(63);
 
         Config conf = new Config();
         // TODO: 2017/7/14
